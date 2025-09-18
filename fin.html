@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PADUKA ANOS — Links</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --frame-dark: rgba(2,6,23,0.70);
+    --card-glass: rgba(255,255,255,0.03);
+    --txt: #eef2ff;
+    --muted:#9aa4bd;
+    --accent-start:#8b5cf6;
+    --accent-end:#06b6d4;
+  }
+  html,body{height:100%;margin:0}
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background: #07103a;
+    -webkit-font-smoothing:antialiased;
+    color:var(--txt);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  /* BACKGROUND VIDEO (LAYER 1) */
+  .bg-wrap{
+    position:fixed;inset:0;z-index:0;overflow:hidden;
+    display:block;pointer-events:none;
+  }
+  .bg-video{
+    width:100%;height:100%;object-fit:cover;display:block;filter:contrast(0.98) saturate(1.02);
+  }
+  /* subtle global tint so card text readable */
+  .bg-tint{position:fixed;inset:0;z-index:1;background:linear-gradient(180deg, rgba(7,16,42,0.15), rgba(7,10,30,0.35));pointer-events:none}
+
+  /* HERO area centers the card with space from edges */
+  .hero{position:relative;z-index:2; width:100%; max-width:420px; margin:20px auto;}
+
+  /* CARD (LAYER 2) -- transparent glass so bg-video visible behind it */
+  .card{
+    position:relative; border-radius:22px; overflow:hidden;
+    backdrop-filter: blur(8px) saturate(1.03); -webkit-backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 18px 40px rgba(2,6,23,0.6);
+  }
+  .card-inner{padding:28px; text-align:center; position:relative; z-index:3;}
+
+  /* profile circle: transparent + blur so bg shows through */
+  .profile{
+    width:128px;height:128px;border-radius:999px;margin:0 auto 14px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 10px 28px rgba(2,6,23,0.45), inset 0 -6px 18px rgba(255,255,255,0.02);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition:transform .16s ease;
+  }
+  .profile:hover{transform:translateY(-6px) scale(1.01)}
+  .profile img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .title{font-weight:700;font-size:18px;letter-spacing:1.6px;margin-top:8px;margin-bottom:6px;}
+  .subtitle{color:var(--muted);font-size:13px;margin-bottom:16px}
+
+  .links{display:grid;gap:12px;padding:6px 4px;margin-top:8px}
+  .btn{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+    background: rgba(3,7,18,0.28);text-decoration:none;color:var(--txt);font-weight:600;
+    box-shadow: 0 8px 20px rgba(2,6,23,0.28);
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative; overflow:hidden;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn:hover{transform:translateY(-4px)}
+  .icon{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,0.03);flex:0 0 40px}
+  .label{flex:1;text-align:left}
+  .label small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:4px}
+
+  .btn .ripple{position:absolute;inset:0;border-radius:12px;pointer-events:none;transform:scale(0);opacity:0.14;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));transition:transform .45s cubic-bezier(.2,.9,.2,1), opacity .45s ease}
+  .btn.loading .ripple{transform:scale(4);opacity:0.06}
+
+  footer{padding:18px 28px 28px;color:var(--muted);font-size:12px;text-align:center}
+
+  /* overlay for link loading */
+  .overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.72));z-index:9999;opacity:0;pointer-events:none;transition:opacity .18s}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .loader-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px 22px;border-radius:14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+  .spinner{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;position:relative}
+  .ring{width:40px;height:40px;border-radius:50%;background:conic-gradient(var(--accent-start),var(--accent-end),var(--accent-start));-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));animation:spin 900ms linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media (max-width:420px){
+    .profile{width:100px;height:100px}
+    .card-inner{padding:20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND VIDEO outside the card (LAYER 1) -->
+<div class="bg-wrap" aria-hidden="true">
+  <video id="bg-video" class="bg-video" playsinline muted autoplay loop preload="auto">
+    <!-- pake Google Drive direct-download link (bisa kena block kadang) -->
+    <source src="https://drive.google.com/uc?export=download&id=1fDyYWUwyeK0ecEf84BuWKfnwWTKHlm78" type="video/mp4">
+    <!-- fallback image if video fail -->
+  </video>
+</div>
+<div class="bg-tint" aria-hidden="true"></div>
+
+<!-- HERO + CARD (LAYER 2) -->
+<div class="hero" role="main" aria-label="Paduka Anos links">
+  <section class="card" id="main-card" aria-label="Main card">
+    <div class="card-inner">
+      <div class="profile" title="Paduka Anos profile">
+        <img id="profile-img" src="https://i.ibb.co/fGMd7rTV/quality-restoration-20250307115036243.jpg" alt="Paduka Anos">
+      </div>
+
+      <h1 class="title">PADUKA ANOS</h1>
+      <div class="subtitle">Links — pick one</div>
+
+      <div class="links" role="list">
+        <a class="btn" href="https://instagram.com/yourhandle" target="_blank" rel="noopener noreferrer" role="listitem" aria-label="Instagram">
+          <div class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.3" /><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" stroke="currentColor" stroke-width="1.2" /><circle cx="17.7" cy="6.3" r="0.7" fill="currentColor"/></svg>
+          </div>
+          <div class="label">Instagram <small>@yourhandle</small></div>
+          <div class="ripple" aria-hidden="true"></div>
+        </a>
+
+        <a class="btn" href="https://t.me/yourchannel" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 3L3 10.5L11 12L21 3Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10.5L8 12L10 21L12 13L21 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="label">Telegram <small>@yourchannel</small></div>
+          <div class="ripple" aria-hidden="true"></div>
+        </a>
+
+        <a class="btn" href="https://x.com/yourhandle" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 4.5c3 4 6 6 7 6.5 1-0.5 4-2.5 7-6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19.5c3-4 6-6 7-6.5 1 0.5 4 2.5 7 6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="label">Twitter / X <small>@yourhandle</small></div>
+          <div class="ripple" aria-hidden="true"></div>
+        </a>
+
+        <a class="btn" href="https://chat.whatsapp.com/yourinvite" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 12.1c0 4.9-4 8.9-8.9 8.9-1.5 0-2.9-.4-4.1-1.2L3 21l1.3-4.1C3.4 15.1 3 13.6 3 12.1 3 7.2 7 3.2 11.9 3.2S21 7.2 21 12.1z" stroke="currentColor" stroke-width="1.1"/><path d="M17 14.5c-.4-.2-2.4-1.2-2.8-1.3-.4-.1-.6.2-.9.6-.3.4-1.1 1.3-1.3 1.6-.2.3-.4.4-.8.1-.4-.3-1.6-.6-2.6-1.6-.9-.9-1.5-2-1.6-2.4-.1-.4.1-.6.3-.8" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="label">WhatsApp Channel <small>Join / Chat</small></div>
+          <div class="ripple" aria-hidden="true"></div>
+        </a>
+
+        <a class="btn" href="https://discord.gg/yourinvite" target="_blank" rel="noopener noreferrer" aria-label="Discord">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7.5 14.3c-.8 0-1.4-.7-1.4-1.5 0-.8.6-1.5 1.4-1.5.8 0 1.4.7 1.4 1.5 0 .8-.6 1.5-1.4 1.5zM16.5 14.3c-.8 0-1.4-.7-1.4-1.5 0-.8.6-1.5 1.4-1.5.8 0 1.4.7 1.4 1.5 0 .8-.6 1.5-1.4 1.5z" stroke="currentColor" stroke-width="0.9"/><path d="M21 4s-1.2-1.2-4-1.2c-1.7 0-3 .6-3 .6l-.2.2c-2.3-.4-4.9-.4-7.3 0-.1 0-1.3-.6-3.1-.6C3 3.2 2 4 2 4s.9 2.2 1.9 4.1c-.1.5-.2 1-.2 1.5 0 4.6 3.8 8.2 8.5 8.2 4.7 0 8.5-3.7 8.5-8.2 0-.6-.1-1.1-.2-1.6C20.1 6.2 21 4 21 4z" stroke="currentColor" stroke-width="0.9"/></svg></div>
+          <div class="label">Discord <small>Invite / Server</small></div>
+          <div class="ripple" aria-hidden="true"></div>
+        </a>
+      </div>
+
+      <footer>Made with ❤️ — replace links & image with your own</footer>
+    </div>
+  </section>
+</div>
+
+<!-- loading overlay -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="loader-card" role="dialog" aria-live="assertive" aria-label="Opening link">
+    <div class="spinner"><div class="ring"></div></div>
+    <div style="text-align:left">
+      <div style="font-weight:700">Opening...</div>
+      <div style="font-size:12px;color:var(--muted)">Hang on — akan diarahkan sebentar lagi</div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden SoundCloud player: pake iframe src yg lo kasih (playlist). Player diset auto_play=true -->
+<!-- sumber iframe lo:
+https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2048145921&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true
+-->
+<iframe id="sc-player"
+  style="display:none;position:fixed;left:-9999px;top:-9999px;z-index:-1"
+  width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2048145921&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">
+</iframe>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+/* ========== bg video fallback handling ========== */
+(function(){
+  const bg = document.getElementById('bg-video');
+
+  // try to play (may be blocked on mobile). If blocked, nothing fatal — visual still plays if allowed.
+  bg.play().catch(()=>{ /* autoplay blocked */ });
+
+  // ensure restart if ended (loop attr normally handles it)
+  bg.addEventListener('ended', ()=>{ try{ bg.currentTime=0; bg.play().catch(()=>{});}catch(e){} });
+})();
+
+/* ========== SoundCloud widget: loop the playlist (hidden) ========== */
+(function(){
+  const iframe = document.getElementById('sc-player');
+  if(!iframe) return;
+  const widget = SC.Widget(iframe);
+
+  widget.bind(SC.Widget.Events.READY, function(){
+    // try play immediately
+    try { widget.play(); } catch(e){}
+  });
+
+  // When playlist finishes, go to 0 and play (loop)
+  widget.bind(SC.Widget.Events.FINISH, function(){
+    try { widget.seekTo(0); widget.play(); } catch(e){}
+  });
+
+  // If autoplay is blocked, attempt play on first user gesture
+  function resumeOnGesture(){
+    function once(){ try{ widget.play(); }catch(e){}; document.removeEventListener('click', once); document.removeEventListener('touchstart', once); }
+    document.addEventListener('click', once);
+    document.addEventListener('touchstart', once);
+  }
+  resumeOnGesture();
+})();
+
+/* ========== Buttons: show loading overlay then redirect ========== */
+(function(){
+  const overlay = document.getElementById('overlay');
+  function showOverlay(){ overlay.classList.add('show'); overlay.setAttribute('aria-hidden','false'); }
+  function hideOverlay(){ overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); }
+
+  function openLinkWithLoading(anchor){
+    anchor.classList.add('loading');
+    showOverlay();
+    const delay = 800;
+    setTimeout(() => {
+      const href = anchor.href;
+      const target = anchor.target;
+      try {
+        if (target === '_blank') window.open(href, '_blank', 'noopener');
+        else window.location.href = href;
+      } catch (e) {
+        window.location.href = href;
+      } finally {
+        setTimeout(()=>{ anchor.classList.remove('loading'); hideOverlay(); }, 500);
+      }
+    }, delay);
+    // wake soundcloud if blocked (user gesture)
+    try { iframe = document.getElementById('sc-player'); iframe.contentWindow && iframe.contentWindow.postMessage('{"method":"play"}','*'); } catch(e){}
+  }
+
+  document.querySelectorAll('.btn').forEach(btn=>{
+    btn.addEventListener('click', function(ev){
+      if (ev.ctrlKey || ev.metaKey || ev.button === 1) return;
+      ev.preventDefault();
+      openLinkWithLoading(this);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.btn.loading').forEach(b => b.classList.remove('loading'));
+      hideOverlay();
+    }
+  });
+})();
+</script>
+</body>
+</html>
